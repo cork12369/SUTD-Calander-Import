@@ -1,84 +1,82 @@
-# SUTD-Calander-Import
-PDF to CSV converter for easy import to google calander
-Prerequisites
+# SUTD MyPortal Weekly Schedule → `.ics` Export (Console Script)
 
-Python 3.6 or higher
+## What this does
+Exports your **My Weekly Schedule** timetable into an **iCalendar (`.ics`)** file you can import into Google Calendar / Apple Calendar / Outlook.
 
-pip (Python package installer)
+--
+- Open **Enrollment → My Weekly Schedule** (weekly grid view).
+- Works best on desktop Chrome/Firefox.
 
-Installation
+---
 
-Clone or Download this repository.
-
-Install dependencies:
-The only external library required is pdfplumber.
-
-pip install pdfplumber
-
-
-How to Get Your Schedule PDF 
-
-Log in to MyPortal and navigate to My Weekly Schedule.
-
-Select List View.
-
-Scroll all the way down to the bottom of the page.
-
-Select Printer Friendly Page.
-
-Press Ctrl + P (or Command + P on Mac) to open the print dialog.
-
-Choose Save as PDF as the destination and save it to a directory of your choice.
-
-Usage
-
-Method 1: Graphical User Interface (GUI)
-
-This is the easiest way to use the tool.
-
-Run the script without any arguments:
-
-python convert_schedule.py
+## Quick Start
+1. Go to **My Weekly Schedule** (weekly view).
+2. Open Developer Tools:
+   - **Chrome/Edge**: `F12` or `Ctrl+Shift+I` / `Cmd+Opt+I`
+   - Click **Console**
+3. Paste the full script (the one that installs `exportSUTDToICS`) and press **Enter**.
+4. Run:
 
 
+```js
+exportSUTDToICS({ weeks: 14, direction: "forward", clickDelayMs: 2500 });
+```
 
-A window will appear.
+## Export Previous 14 Weeks (if needed)
 
-Click "Browse..." to select your Schedule PDF.
+```js
+exportSUTDToICS({ weeks: 14, direction: "backward", clickDelayMs: 2500 });
+```
 
-(Optional) Click "Browse..." to choose where to save the CSV file.
+---
 
-Click "Convert to CSV".
+## Settings Reference
 
-Method 2: Command Line (CLI)
+| Option           | Meaning                            | Typical Values            |
+| ---------------- | ---------------------------------- | ------------------------- |
+| `weeks`          | number of weeks to export          | `1`, `14`                 |
+| `direction`      | move weeks forward/back            | `"forward"`, `"backward"` |
+| `clickDelayMs`   | wait after clicking next/prev week | `1800`–`3500`             |
+| `tzid`           | timezone in ICS                    | `"Asia/Singapore"`        |
+| `filenamePrefix` | downloaded filename prefix         | `"sutd_schedule"`         |
 
-You can specify files directly in the terminal, which is useful for scripts or quick conversions.
+Example:
 
-Syntax:
+```js
+exportSUTDToICS({
+  weeks: 10,
+  direction: "forward",
+  clickDelayMs: 3000,
+  filenamePrefix: "my_timetable"
+});
+```
 
-python convert_schedule.py [input_pdf_path] --output [output_csv_path]
+---
+
+## Troubleshooting
+
+### 1) 14-week file downloads but has no events
+
+This usually means the script clicked **Next Week** but scraped too early.
+
+Fix:
+
+```js
+exportSUTDToICS({ weeks: 14, clickDelayMs: 3500 });
+```
+
+### 2) Script can’t find the timetable iframe / cross-origin error
+
+Fix:
+
+* Right-click inside the timetable area → **Open frame in new tab**
+* Run the script again in that tab.
 
 
+---
 
-Importing to Google Calendar
+## Importing the `.ics`
 
-Once you have generated the CSV file:
-
-Open Google Calendar on your computer.
-
-Click the Settings gear icon (top right) > Settings.
-
-In the left sidebar, click Import & export.
-
-Under "Import", click Select file from your computer and choose your generated CSV file.
-
-Select the specific calendar you want to add these events to (e.g., your primary calendar).
-
-Click Import.
-
-Troubleshooting
-
-"No events found": The PDF might be an image scan (not selectable text) or have a radically different table layout. This script relies on pdfplumber finding text tables.
-
-Wrong Times: Check the CSV file. If times are missing, the PDF might have unusual formatting (e.g., newlines splitting the time). The script attempts to clean "Mon 10:00AM" into "10:00 AM".
-
+* **Google Calendar**: Settings → Import & Export → Import `.ics`
+* **Apple Calendar**: File → Import
+* **Outlook**: File → Open & Export → Import/Export
